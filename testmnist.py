@@ -88,8 +88,25 @@ def write_train_result(step, train_accuracies, val_accuracies, loss):
 	file.write(str(loss)+'\n')
 	file.close()
 
+def process_output(output):
+	file = open(output,'r')
+	l = []
+	for row in file:
+		l.append(row)
+	l[1], l[3], l[5], l[7] = l[1][1:-2], l[3][1:-2], l[5][1:-2], l[7][1:-2]
+	# print type(l[1]), type(l[3]), type(l[5]), type(l[7])
+
+	l[1], l[3], l[5], l[7] = l[1].split(','), l[3].split(','), l[5].split(','), l[7].split(',')
+	f = lambda lst: map(float,lst)
+	step, train_accuracies, val_accuracies, loss = f(l[1]), f(l[3]), f(l[5]), f(l[7])
+	file.close()
+	plot_train(step, train_accuracies, val_accuracies, loss)
+
+
+
 if __name__ == "__main__":
-	_, step, train_accuracies, val_accuracies, loss = test_mnist(num_epochs=60)
-	write_train_result(step, train_accuracies, val_accuracies, loss)
+	# _, step, train_accuracies, val_accuracies, loss = test_mnist(num_epochs=60)
+	# write_train_result(step, train_accuracies, val_accuracies, loss)
+	process_output('Output.txt')
 
 
