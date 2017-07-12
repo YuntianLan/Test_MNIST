@@ -8,14 +8,9 @@ from cs231n.gradient_check import eval_numerical_gradient, eval_numerical_gradie
 from cs231n.solver import Solver
 
 #%matplotlib inline
-plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
-plt.rcParams['image.interpolation'] = 'nearest'
-plt.rcParams['image.cmap'] = 'gray'
-
-# for auto-reloading external modules
-# see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython
-#%load_ext autoreload
-#%autoreload 2
+# plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
+# plt.rcParams['image.interpolation'] = 'nearest'
+# plt.rcParams['image.cmap'] = 'gray'
 
 def rel_error(x, y):
 	""" returns relative error """
@@ -43,26 +38,26 @@ def get_mnist_data(file_name,num):
 	return train_X, train_Y
 
 
-def test_mnist():
+def test_mnist(num_epochs=60,batch_size=60,learning_rate=3e-3):
 	X_train, y_train = get_mnist_data('mnist_train.csv',50000)
-	X_val, y_val = get_mnist_data('mnist_test',10000)
+	X_val, y_val = get_mnist_data('mnist_test.csv',10000)
 	hidden_dims= [100,100,100]
-	num_train = 48000
+	# num_train = 48000
 	test_data = {
-		'X_train': X[:num_train],
-		'y_train': Y[:num_train],
-		'X_val': X[len(X)-1500:],
-		'y_val': Y[len(Y)-1500:]
+		'X_train': X_train,
+		'y_train': y_train,
+		'X_val': X_val,
+		'y_val': y_val
 	}
 	weight_scale = 2e-2
 	bn_model = FullyConnectedNet(hidden_dims,input_dim=1*784,weight_scale=weight_scale,use_batchnorm=True)
 	bn_solver = Solver(bn_model, test_data,
-		num_epochs=20, batch_size=60,
+		num_epochs=num_epochs, batch_size=batch_size,
 		update_rule='sgd',
 		optim_config={
-			'learning_rate': 3e-3,
+			'learning_rate': learning_rate,
 		},
-		verbose=True, print_every=200)
+		verbose=True, print_every=400)
 	step, train_accuracies, val_accuracies, loss = bn_solver.train()
 	return bn_model, step, train_accuracies, val_accuracies, loss
 
@@ -81,7 +76,20 @@ def plot_train(step, train_accuracies, val_accuracies, loss):
 
 	plt.show()
 
+def write_train_result(step, train_accuracies, val_accuracies, loss):
+	file = open("Output.txt",'w')
+	file.write("Step:\n")
+	file.write(str(step)+'\n')
+	file.write("Train Accuracies:\n")
+	file.write(str(train_accuracies)+'\n')
+	file.write("Validation Accuracies:\n")
+	file.write(str(val_accuracies)+'\n')
+	file.write("Loss:\n")
+	file.write(str(loss)+'\n')
+	file.close()
 
-# if __name__ != "__main__":
-# 	_, step, train_accuracies, val_accuracies, loss = test_mnist()
-# 	plot_train(step, train_accuracies, val_accuracies, loss)
+if __name__ == "__main__":
+	_, step, train_accuracies, val_accuracies, loss = test_mnist(num_epochs=60)
+	write_train_result(step, train_accuracies, val_accuracies, loss)
+
+
